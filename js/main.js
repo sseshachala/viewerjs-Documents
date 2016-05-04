@@ -52,8 +52,7 @@ var getNiceHostname = () => {
 	viewHandlers.gif = viewHandlers.image;
 	viewHandlers.tiff = viewHandlers.image;
 
-	//	handler for all other types (like doc, docx etc)
-	viewHandlers.google = (el, src) => {
+	viewHandlers.pdf = (el, src) => {
 		var docSource = src;
 		if (src[0] === '.') docSource = hostname + src.substring(2);
 		var docIframe = document.createElement('iframe');
@@ -64,12 +63,27 @@ var getNiceHostname = () => {
 		el.appendChild(docIframe);
 	};
 
+	var _grs = () => { return Math.round(Math.random() * 10000).toString(); };
+
+	//	handler for all other types (like doc, docx etc)
+	viewHandlers.other = (el, src) => {
+		var docSource = src;
+		if (src[0] === '.') docSource = hostname + src.substring(2);
+		var docIframe = document.createElement('iframe');
+		docIframe.style.width = "100%";
+		docIframe.style.height = "100%";
+		docIframe.style.position = "relative";
+		docIframe.src = ('http://online.verypdf.com/api/?apikey=DC15DA3453F46A0BCD19A2444376A168B016230F'
+			+ '&app=ViewAsPDFPaper&demopdfopacity=0.01&infile=' + docSource);
+		el.appendChild(docIframe);
+	};
+
 	var docElements = document.querySelectorAll('div[doc-src]');
 	for (var i = 0; i < docElements.length; i++) {
 		var docSource = docElements[i].getAttribute('doc-src');
 		var extension = docSource.split('.');
 		extension = extension[extension.length - 1];
 		if (viewHandlers[extension]) viewHandlers[extension](docElements[i], docSource);
-		else viewHandlers['google'](docElements[i], docSource);
+		else viewHandlers.other(docElements[i], docSource);
 	};
 })();
