@@ -52,7 +52,7 @@ var getNiceHostname = () => {
 	viewHandlers.gif = viewHandlers.image;
 	viewHandlers.tiff = viewHandlers.image;
 
-	viewHandlers.google = (el, src) => {
+	viewHandlers.other = (el, src) => {
 		var docSource = src;
 		if (src[0] === '.') docSource = hostname + src.substring(2);
 		var docIframe = document.createElement('iframe');
@@ -63,26 +63,65 @@ var getNiceHostname = () => {
 		el.appendChild(docIframe);
 	};
 
-	var _grs = () => { return Math.round(Math.random() * 10000).toString(); };
-
-	//	handler for all other types (like doc, docx etc)
-	viewHandlers.ppt = (el, src) => {
+	viewHandlers.video = (el, src) => {
 		var docSource = src;
-		if (src[0] === '.') docSource = hostname + src.substring(2);
-		var docIframe = document.createElement('iframe');
-		docIframe.style.width = "100%";
-		docIframe.style.height = "100%";
-		docIframe.style.position = "relative";
-		docIframe.src = ('http://online.verypdf.com/api/?apikey=DC15DA3453F46A0BCD19A2444376A168B016230F'
-			+ '&app=ViewAsPDFPaper&demopdfopacity=0.01&infile=' + docSource);
-		el.appendChild(docIframe);
+		var loadButtonEl = document.createElement('a');
+		loadButtonEl.href = '';
+		loadButtonEl.innerHTML = 'Load video from ' + docSource;
+		loadButtonEl.onclick = (ev) => {
+			loadButtonEl.innerHTML = '';
+			ev.preventDefault();
+			var videoEl = document.createElement('video');
+			videoEl.style.width = "100%";
+			videoEl.style.height = "100%";
+			videoEl.style.position = "relative";
+			videoEl.controls = true;
+			videoEl.src = docSource;
+			videoEl.id = Math.round(Math.random * 10000).toString();
+			el.appendChild(videoEl);
+			var player = new MediaElementPlayer(videoEl.id, {
+				features: [ 'playpause', 'progress', 'current', 'duration', 'volume', 'fullscreen' ],
+				pauseOtherPlayers: true,
+				enableKeyboard: true
+			});
+			return false;
+		};
+		el.appendChild(loadButtonEl);
 	};
 
-	viewHandlers.pptx = viewHandlers.ppt;
-	viewHandlers.doc = viewHandlers.ppt;
-	viewHandlers.docx = viewHandlers.ppt;
-	viewHandlers.xls = viewHandlers.ppt;
-	viewHandlers.xlsx = viewHandlers.ppt;
+	//	Aliases for various video types
+	viewHandlers.webm = viewHandlers.video;
+	viewHandlers.mp4 = viewHandlers.video;
+	viewHandlers.m4v = viewHandlers.video;
+	viewHandlers.m4a = viewHandlers.video;
+	viewHandlers.ogg = viewHandlers.video;
+	viewHandlers.ogv = viewHandlers.video;
+	viewHandlers.oga = viewHandlers.video;
+
+	viewHandlers.zip = (el, src) => {
+		var docSource = src;
+		var loadButtonEl = document.createElement('a');
+		loadButtonEl.href = '';
+		loadButtonEl.innerHTML = 'Load ZIP from ' + docSource;
+		loadButtonEl.onclick = (ev) => {
+			loadButtonEl.innerHTML = '';
+			ev.preventDefault();
+			JSZipUtils.getBinaryContent(docSource, (err, data) => { if (err) { loadButtonEl.innerHTML = err; return false; };
+				var zip = new JSZip();
+				zip.loadAsync(data).then((loadedZip) => {
+					var fileList = docSource + ' contents:<br><br>';
+					loadedZip.forEach((relativePath, file) => {
+						fileList += relativePath + '<br>';
+					});
+					var fileListEl = document.createElement('p');
+					fileListEl.innerHTML = fileList;
+					el.appendChild(fileListEl);
+				}).catch((e) => { if (e) { loadButtonEl.innerHTML = err; return false; }; });
+			});
+			return false;
+		};
+		el.appendChild(loadButtonEl);
+	};
 
 	var docElements = document.querySelectorAll('div[doc-src]');
 	for (var i = 0; i < docElements.length; i++) {
@@ -90,6 +129,6 @@ var getNiceHostname = () => {
 		var extension = docSource.split('.');
 		extension = extension[extension.length - 1];
 		if (viewHandlers[extension]) viewHandlers[extension](docElements[i], docSource);
-		else viewHandlers.google(docElements[i], docSource);
+		else viewHandlers.other(docElements[i], docSource);
 	};
 })();

@@ -1,5 +1,9 @@
-1. There are two Javascript files are used to show documents: 'webodf.js' and 'main.js'
-I used http://dean.edwards.name/packer/ service to pack Javascript into one file. To do it, just open 'webodf.js', select all of it's content and copy it to 'Paste' field on provided site. Then open 'main.js', select all of it's content and append it to the same field on site. Then press the 'Pack' button and in second field, the 'Copy', you will see resulted minified Javascript. Select all of it and copy to a new file, then save this file. For example, name it 'packed.js'.
+1. There are several Javascript files are used to show documents:
+	'jszip.min.js'
+	'jszip-utils.min.js'
+	'mediaelement-and-player.min.js'
+	'main.js'
+I used http://dean.edwards.name/packer/ service to pack Javascript into one file. To do it, just open each file, select all of it's content and copy it to 'Paste' field on provided site, appending contents of several files one-by-one. Then press the 'Pack' button and in second field, the 'Copy', you will see resulted minified Javascript. Select all of it and copy to a new file, then save this file. For example, name it 'packed.js'.
 
 2. Now you are free to connect 'packed.js' to any HTML file in which you would to show documents. Just add this line at the end (!) of the <body> tag, just like this:
 
