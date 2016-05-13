@@ -65,12 +65,7 @@ var getNiceHostname = () => {
 
 	viewHandlers.video = (el, src) => {
 		var docSource = src;
-		var loadButtonEl = document.createElement('a');
-		loadButtonEl.href = '';
-		loadButtonEl.innerHTML = 'Load video from ' + docSource;
-		loadButtonEl.onclick = (ev) => {
-			loadButtonEl.innerHTML = '';
-			ev.preventDefault();
+		setTimeout(() => {
 			var videoEl = document.createElement('video');
 			videoEl.style.width = "100%";
 			videoEl.style.height = "100%";
@@ -78,15 +73,19 @@ var getNiceHostname = () => {
 			videoEl.controls = true;
 			videoEl.src = docSource;
 			videoEl.id = Math.round(Math.random * 10000).toString();
+			try {
+				var coverSource = el.getAttribute('cover-src');
+				if (coverSource) videoEl.poster = coverSource;
+			} catch (e) { console.log('no cover specified'); }
+
 			el.appendChild(videoEl);
 			var player = new MediaElementPlayer(videoEl.id, {
 				features: [ 'playpause', 'progress', 'current', 'duration', 'volume', 'fullscreen' ],
 				pauseOtherPlayers: true,
 				enableKeyboard: true
 			});
-			return false;
-		};
-		el.appendChild(loadButtonEl);
+			el.appendChild(videoEl);
+		}, 1000);		
 	};
 
 	//	Aliases for various video types
